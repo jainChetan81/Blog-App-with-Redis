@@ -11,10 +11,11 @@ const exec = mongoose.Query.prototype.exec;
 mongoose.Query.prototype.cache = () => {
     this.useCache = true;
 };
+//TODO: "this" is a reference to query>.prototype
 
 mongoose.Query.prototype.exec = async function () {
     if (!this.useCache) return await exec.apply(this, arguments);
-    
+
     console.log("running a query");
     //TODO:to safely copy objects
     const key = JSON.stringify(
@@ -40,7 +41,7 @@ mongoose.Query.prototype.exec = async function () {
 
     console.log("key :", key);
     const result = await exec.apply(this, arguments);
-    client.set(JSON.stringify(result));
+    client.set(key, JSON.stringify(result), EX, 10);
     console.log("result : ", result);
     return result;
 };
